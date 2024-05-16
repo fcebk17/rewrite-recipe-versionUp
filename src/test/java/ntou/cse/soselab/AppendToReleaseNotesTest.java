@@ -13,47 +13,48 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.yourorg;
+package ntou.cse.soselab;
 
 import org.junit.jupiter.api.Test;
 import org.openrewrite.DocumentExample;
-import org.openrewrite.java.JavaParser;
 import org.openrewrite.test.RecipeSpec;
 import org.openrewrite.test.RewriteTest;
 
-import static org.openrewrite.java.Assertions.java;
+import java.nio.file.Paths;
 
-class UseApacheStringUtilsTest implements RewriteTest {
+import static org.openrewrite.test.SourceSpecs.text;
+
+class AppendToReleaseNotesTest implements RewriteTest {
     @Override
     public void defaults(RecipeSpec spec) {
-        spec.recipeFromResources("com.yourorg.UseApacheStringUtils")
-          .parser(JavaParser.fromJavaVersion().classpath("commons-lang3", "spring-core"));
+        spec.recipe(new AppendToReleaseNotes("Hello world"));
+    }
+
+    @Test
+    void createNewReleaseNotes() {
+        rewriteRun(
+          text(null,
+            """
+              Hello world
+              """
+          )
+        );
     }
 
     @DocumentExample
     @Test
-    void replacesStringEquals() {
+    void editExistingReleaseNotes() {
         rewriteRun(
-          //language=java
-          java(
+          text(
             """
-              import org.springframework.util.StringUtils;
-              
-              class A {
-                  boolean test(String s) {
-                      return StringUtils.containsWhitespace(s);
-                  }
-              }
+              You say goodbye, I say
               """,
             """
-              import org.apache.commons.lang3.StringUtils;
-              
-              class A {
-                  boolean test(String s) {
-                      return StringUtils.containsWhitespace(s);
-                  }
-              }
-              """
+              You say goodbye, I say
+              Hello world
+              """,
+            spec -> spec.path(Paths.get("RELEASE.md")
+            )
           )
         );
     }
